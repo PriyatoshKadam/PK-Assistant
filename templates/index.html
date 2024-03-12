@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P K - Virtual Assistant</title>
+    <style>
+        body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    background-image: url('{{ url_for('static', filename='ai.jpeg') }}');
+    
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Adjust the opacity here (0.5 for darker) */
+    z-index: -1;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+    color: #2b2828; 
+}
+
+        h1 {
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffffff; 
+        }
+        form {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        #command-input {
+            width: 60%;
+            padding: 10px;
+            font-size: 1.2em;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+            color: #333; 
+            background-color: #fff; 
+        }
+        #submit-button, #voice-button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #submit-button:hover, #voice-button:hover {
+            background-color: #0056b3;
+        }
+        .command-list {
+            background-color: rgba(255, 255, 255, 0.3); 
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .command-list h2 {
+            font-size: 1.5em;
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .command-list ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .command-list li {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div> 
+    <div class="container">
+        <h1>P K - Virtual Assistant</h1>
+        <form id="command-form">
+            <input type="text" id="command-input" placeholder="Speak or type your command...">
+            <button type="button" id="voice-button">Voice Input</button>
+            <button type="submit" id="submit-button">Submit</button>
+        </form>
+        <div class="command-list">
+            <h2>Available Commands:</h2>
+            <ul>
+                <li>Ask to Play (song or video name)</li>
+                <li>Time</li>
+                <li>Tell me about any topic</li>
+                <li>Ask Jokes</li>
+                <li>Open YouTube</li>
+                <li>Open Google</li>
+                <li>News</li>
+                <li>Music</li>
+                <li>Search</li>
+                <li>Send email</li>
+            </ul>
+        </div>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        document.getElementById('command-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var commandInput = document.getElementById('command-input').value;
+            document.getElementById('response').innerHTML = '<p>Processing...</p>';
+            fetch('/process_command', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ command: commandInput }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('response').innerHTML = '<p>' + data.response + '</p>';
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+
+        document.getElementById('voice-button').addEventListener('click', function() {
+            document.getElementById('command-input').value = ''; // Clear any existing text
+            document.getElementById('response').innerHTML = '<p>Listening...</p>';
+            fetch('/voice_input')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('command-input').value = data.command;
+                document.getElementById('response').innerHTML = ''; 
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+    
+</body>
+</html>
